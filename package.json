@@ -1,0 +1,23 @@
+{
+  "name": "com.ari.guard",
+  "displayName": "GuardSIM",
+  "version": "1.0.0",
+  "description": "Anti Maling SIM Card",
+  "main": "index.js",
+  "keywords": ["ecosystem:cordova"],
+  "author": "Sarwoto Ari",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "cordova-android": "^12.0.0"
+  },
+  "cordova": {
+    "plugins": {
+      "cordova-plugin-sim": {},
+      "cordova-plugin-media": {},
+      "cordova-plugin-android-volume": {},
+      "cordova-plugin-flashlight": {},
+      "cordova-plugin-settings": {}
+    },
+    "platforms": ["android"]
+  }
+}
