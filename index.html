@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GuardSIM Pro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body { font-family: sans-serif; text-align: center; background: #1a1a1a; color: white; padding-top: 50px; }
+        .status { font-size: 1.2em; margin-bottom: 20px; color: #00ff00; }
+        .btn { padding: 15px 30px; font-size: 1em; cursor: pointer; border: none; border-radius: 5px; margin: 10px; }
+        .btn-active { background: #ff4444; color: white; }
+        .btn-test { background: #4444ff; color: white; }
+    </style>
+</head>
+<body>
+    <h1>GuardSIM Pro</h1>
+    <div id="status" class="status">Sistem Siap...</div>
+    <button id="toggleBtn" class="btn btn-active" onclick="toggleGuard()">AKTIFKAN PROTEKSI</button>
+    <button class="btn btn-test" onclick="testAlarm()">TEST ALARM</button>
+
+    <script src="cordova.js"></script>
+    <script>
+        let isGuarded = false;
+        let originalSimId = "";
+        let alarmMedia = null;
+
+        document.addEventListener('deviceready', onDeviceReady, false);
+
+        function onDeviceReady() {
+            console.log('Cordova siap!');
+            // Ambil ID SIM saat ini sebagai patokan
+            window.plugins.sim.getSimInfo(success => {
+                originalSimId = success.simSerialNumber || success.deviceId;
+                document.getElementById('status').innerText = "SIM Terdeteksi: " + success.carrierName;
+            }, err => console.log(err));
+            
+            // Siapkan audio alarm (pastikan ada file alarm.mp3 di folder www atau link url)
+            alarmMedia = new Media("https://www.soundjay.com/buttons/beep-01a.mp3");
+        }
+
+        function toggleGuard() {
+            isGuarded = !isGuarded;
+            const btn = document.getElementById('toggleBtn');
+            const status = document.getElementById('status');
+            
+            if (isGuarded) {
+                btn.innerText = "MATIKAN PROTEKSI";
+                btn.style.background = "#44ff44";
+                status.innerText = "PROTEKSI AKTIF!";
+                startMonitoring();
+            } else {
+                btn.innerText = "AKTIFKAN PROTEKSI";
+                btn.style.background = "#ff4444";
+                status.innerText = "Proteksi Dimatikan";
+                stopAlarm();
+            }
+        }
+
+        function startMonitoring() {
+            const checkInterval = setInterval(() => {
+                if (!isGuarded) { clearInterval(checkInterval); return; }
+
+                window.plugins.sim.getSimInfo(success => {
+                    let currentSimId = success.simSerialNumber || success.deviceId;
+                    if (currentSimId !== originalSimId) {
+                        triggerAlarm("SIM DICABUT/DIGANTI!");
+                    }
+                }, err => triggerAlarm("SIM TIDAK TERDETEKSI!"));
+            }, 3000);
+        }
+
+        function triggerAlarm(msg) {
+            document.getElementById('status').innerText = msg;
+            document.getElementById('status').style.color = "red";
+            
+            // Paksa volume maksimal
+            if(window.AndroidVolume) {
+                AndroidVolume.setAlarm(100);
+                AndroidVolume.setMusic(100);
+            }
+            
+            // Nyalakan Senter
+            window.plugins.flashlight.switchOn();
+            
+            // Bunyi Alarm
+            alarmMedia.play();
+        }
+
+        function testAlarm() {
+            triggerAlarm("TESTING ALARM...");
+            setTimeout(() => {
+                window.plugins.flashlight.switchOff();
+                alarmMedia.stop();
+            }, 5000);
+        }
+
+        function stopAlarm() {
+            window.plugins.flashlight.switchOff();
+            if(alarmMedia) alarmMedia.stop();
+        }
+    </script>
+</body>
+</html>
