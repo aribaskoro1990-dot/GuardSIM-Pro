@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="com.ari.guard" version="1.0.0" xmlns="http://www.w3.org/ns/widgets">
+    <name>GuardSIM</name>
+    <description>Anti Maling SIM Card Pro</description>
+    <author email="ari@example.com">Sarwoto Ari</author>
+    <content src="index.html" />
+    <access origin="*" />
+</widget>
