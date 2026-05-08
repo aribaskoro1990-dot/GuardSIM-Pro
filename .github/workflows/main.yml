@@ -1,0 +1,18 @@
+name: Rakit APK Otomatis
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+      - run: npm install -g cordova
+      - run: cordova platform add android@12.0.0
+      - run: cordova build android --debug
+      - name: Upload APK
+        uses: actions/upload-artifact@v2
+        with:
+          name: GuardSIM-Hasil-Rakit
+          path: platforms/android/app/build/outputs/apk/debug/app-debug.apk
