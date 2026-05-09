@@ -9,18 +9,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout kode
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18   # Cordova lebih stabil di 18
+          node-version: 18
 
       - name: Install Cordova
         run: npm install -g cordova
 
-      - name: Setup JDK 17
+      - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
@@ -29,14 +28,14 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Tambah Platform Android
-        run: cordova platform add android@12
+      - name: Tambah Platform
+        run: cordova platform add android@12 --no-fetch
 
-      - name: Build Debug APK
-        run: cordova build android --debug
+      - name: Build APK
+        run: cordova build android --debug -- --gradleArg="--parallel"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: GuardSIM-Hasil-Rakit
+          name: GuardSIM-APK
           path: platforms/android/app/build/outputs/apk/debug/app-debug.apk
